@@ -2,7 +2,7 @@
 :root {
   --bg: #0d1016; --surface: rgba(255,255,255,.04); --surface-2: rgba(255,255,255,.07);
   --ink: #f0efec; --ink-2: #b4b6bd; --ink-3: #7c808a; --grid: rgba(255,255,255,.07);
-  --line: #3987e5; --line-soft: rgba(57,135,229,.18); --pos: #3987e5; --neg: #e66767;
+  --line: #3987e5; --line-soft: rgba(57,135,229,.18); --pos: #d95926; --neg: #3987e5;
   --card-border: rgba(255,255,255,.08); --shadow: none; --radius: 16px;
   --glow-1: rgba(57,135,229,.18); --glow-2: rgba(98,80,214,.14);
   --big: linear-gradient(180deg,#fff,#9ec5f4);
@@ -14,7 +14,7 @@
 :root.day {
   --bg: #f5f7fb; --surface: rgba(255,255,255,.78); --surface-2: rgba(15,23,42,.06);
   --ink: #0d1016; --ink-2: #454b5a; --ink-3: #6b7080; --grid: rgba(15,23,42,.08);
-  --line: #2a78d6; --line-soft: rgba(42,120,214,.12); --pos: #2a78d6; --neg: #e34948;
+  --line: #2a78d6; --line-soft: rgba(42,120,214,.12); --pos: #eb6834; --neg: #2a78d6;
   --card-border: rgba(15,23,42,.08);
   --shadow: 0 1px 2px rgba(15,23,42,.04), 0 8px 24px rgba(15,23,42,.05);
   --glow-1: rgba(57,135,229,.16); --glow-2: rgba(98,80,214,.10);
