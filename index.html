@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bluesky Hedonometer</title>
+<meta name="description" content="Daily happiness and entropy rate of the language of Bluesky, from every public post.">
+<script>
+  // Set the theme before first paint (no flash). app.js keeps it in sync afterwards.
+  (function () {
+    var pref = "auto";
+    try { pref = localStorage.getItem("theme") || "auto"; } catch (e) {}
+    var dark = false;
+    try { dark = matchMedia("(prefers-color-scheme: dark)").matches; } catch (e) {}
+    var day = pref === "day" || (pref !== "night" && !dark);
+    if (day) document.documentElement.classList.add("day");
+  })();
+</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M1 11l4-4 3 3 7-7' fill='none' stroke='%233987e5' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<script defer src="https://cdn.jsdelivr.net/npm/vega@6.4.0/build/vega.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/vega-lite@6.4.1/build/vega-lite.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/vega-embed@7.3.0/build/vega-embed.min.js"></script>
+<script type="module" src="assets/app.js"></script>
+</head>
+<body>
+<div class="page">
+  <header class="top">
+    <div class="brand">
+      <h1 id="brandTitle">Bluesky Hedonometer</h1>
+      <p id="brandSub">How happy the language of Bluesky is, day by day, from every public post.</p>
+    </div>
+    <div class="controls">
+      <div class="seg meter" role="tablist" aria-label="Meter">
+        <button role="tab" data-m="happiness" aria-selected="true">Happiness</button>
+        <button role="tab" data-m="entropy" aria-selected="false">Entropy rate</button>
+      </div>
+      <select class="lang" id="lang" aria-label="Language"></select>
+      <div class="seg theme" role="radiogroup" aria-label="Colour theme">
+        <button role="radio" data-t="auto" aria-checked="true" title="Follow your device">Auto</button>
+        <button role="radio" data-t="day" aria-checked="false" aria-label="Day mode" title="Day mode">☀︎</button>
+        <button role="radio" data-t="night" aria-checked="false" aria-label="Night mode" title="Night mode">☾</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="grid">
+    <section class="card hero" aria-live="polite">
+      <div>
+        <div class="label" id="heroLabel">Average happiness</div>
+        <div class="big" id="heroVal">—</div>
+        <div class="delta" id="heroDelta"></div>
+      </div>
+      <div class="chart spark" id="spark"></div>
+      <dl class="stats" id="stats"></dl>
+      <div class="meta" id="heroMeta"></div>
+    </section>
+
+    <section class="card main">
+      <div class="ranges" role="group" aria-label="Range">
+        <button data-r="30" aria-pressed="false">30d</button><button data-r="90" aria-pressed="true">90d</button><button data-r="all" aria-pressed="false">All</button>
+      </div>
+      <h2 id="mainTitle">Daily happiness</h2>
+      <p class="sub" id="mainSub">Hover for values · click a day for details · hollow points are days with missing hours</p>
+      <div class="chart" id="mainChart"><div class="empty" id="mainEmpty">Loading…</div></div>
+      <div class="chart brush" id="brush"></div>
+    </section>
+
+    <section class="detail">
+      <div class="card">
+        <div class="daynav">
+          <button id="prev" aria-label="Previous day" disabled>‹</button>
+          <span class="d" id="dayLabel"></span>
+          <button id="next" aria-label="Next day" disabled>›</button>
+          <span class="badge" id="dayBadge" hidden></span>
+        </div>
+        <h2 id="shiftTitle">What moved happiness</h2>
+        <p class="sub" id="shiftSub">Top words versus up to 7 previous days</p>
+        <div class="shift-legend" id="shiftLegend">
+          <span><i class="sw sw-pos"></i>raised happiness</span>
+          <span><i class="sw sw-neg"></i>lowered happiness</span>
+          <span>solid ↑ used more · pale ↓ used less</span>
+        </div>
+        <div class="chart shift" id="shift"></div>
+      </div>
+      <div class="card">
+        <h2 id="hourTitle">Happiness through the day</h2>
+        <p class="sub">Hourly values, UTC</p>
+        <div class="chart" id="hourly"></div>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    <div><h3>Method</h3>Happiness is the average <a href="https://www.pnas.org/doi/10.1073/pnas.1411678112#supplementary-materials">LabMT</a> score of words in each day's posts, ignoring neutral words (scores 4–6). Entropy rate is estimated with <a href="https://pypi.org/project/ProcessEntropy/">ProcessEntropy</a> on a fixed 1M-word random sample per day.</div>
+    <div><h3>Privacy &amp; data</h3>Only aggregates are published. No posts, handles or account identifiers ever leave the research server. <a href="data/hedonometer-blue-daily.csv">Download the daily data (CSV)</a> · <a href="https://github.com/lewismath/hedonometer-blue/tree/main/data">all data files</a>.<br>Data: CC BY-NC-SA 4.0 · <span id="updated"></span></div>
+    <div><h3>Sources &amp; credits</h3>Bluesky Jetstream. <a href="https://www.pnas.org/doi/10.1073/pnas.1411678112#supplementary-materials">LabMT</a> (Dodds et al. <a href="https://doi.org/10.1371/journal.pone.0026752">2011</a>, <a href="https://www.pnas.org/doi/10.1073/pnas.1411678112">2015</a>; CC BY-NC-SA 4.0). Word shifts: <a href="https://github.com/ryanjgallagher/wordlevel">wordlevel</a> (<a href="https://link.springer.com/content/pdf/10.1140/epjds/s13688-021-00260-3.pdf">Gallagher et al. 2021</a>). Entropy rate: <a href="https://www.nature.com/articles/s41562-018-0510-5">Bagrow, Liu &amp; Mitchell 2019</a>; <a href="https://www.sciencedirect.com/science/article/pii/S2468696422000337">South, Smart, Roughan &amp; Mitchell 2022</a>.</div>
+  </footer>
+</div>
+</body>
+</html>
