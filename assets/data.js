@@ -95,9 +95,13 @@ export function reconcile(state, index, series) {
   const meter = lang.meters.includes(state.meter) ? state.meter : lang.meters[0];
   let date = state.date;
   if (series.length) {
-    date = state.date
-      ? series[nearestIndex(series, dayNumber(state.date))].date
-      : series[series.length - 1].date;
+    // Prefer days that have a value; fall back to every day when none does.
+    const valued = series.filter((p) => p.value !== null);
+    const pool = valued.length ? valued : series;
+    const wanted = state.date && series.find((p) => p.date === state.date);
+    if (wanted && wanted.value !== null) date = wanted.date;
+    else if (state.date) date = pool[nearestIndex(pool, dayNumber(state.date))].date;
+    else date = pool[pool.length - 1].date;
   }
   return { lang: lang.code, meter, date, range: state.range ?? 90, theme: state.theme ?? "auto" };
 }
@@ -126,11 +130,16 @@ export const resolveTheme = (pref, systemDark) =>
 // Relative URL of a day's word-shift file.
 export const shiftUrl = (lang, date) => `data/${lang}/shifts/${date}.json`;
 
+// Hero line for a selected day that has no value.
+export const NO_SCORE_MESSAGE = "Not enough words on this day for a score.";
+
 // Explanation to show instead of a word shift, or null when there is nothing to explain.
-export function shiftMessage(meter, status) {
+// hasValue false: the selected day has no value, so there is no shift to fetch.
+export function shiftMessage(meter, status, hasValue = true) {
   if (meter === "entropy") {
     return "Word shifts are a happiness feature. Switch to Happiness to see which words moved the day.";
   }
+  if (!hasValue) return "Not enough words on this day for a word shift.";
   if (status === 404) {
     return "No word shift for this day: it needs at least one earlier day to compare against.";
   }

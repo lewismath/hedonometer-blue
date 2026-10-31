@@ -1,7 +1,7 @@
 // State, fetching, controls, theme and word-shift embedding. Drawing lives in charts.js.
 import {
   dayNumber, toSeries, trailingMean, xDomain, hourly, reconcile, pageTitle, subtitle,
-  formatCount, resolveTheme, shiftUrl, shiftMessage, themeShift,
+  formatCount, resolveTheme, shiftUrl, shiftMessage, NO_SCORE_MESSAGE, themeShift,
 } from "./data.js";
 import { drawMain, drawBrush, drawHourly, drawSpark, fmtDate } from "./charts.js";
 
@@ -73,7 +73,7 @@ async function loadDay() {
   const url = shiftUrl(code, date);
   const [day, sh] = await Promise.all([
     getJSON(`data/${code}/days/${date}.json`),
-    isHappy() ? getJSON(url) : Promise.resolve(null),
+    isHappy() && series[selIndex()]?.value !== null ? getJSON(url) : Promise.resolve(null),
   ]);
   if (my !== dayToken) return;
   dayFile = day.body && Array.isArray(day.body.hour_states) ? day.body : false;
@@ -125,7 +125,7 @@ function renderHero() {
   $("#heroVal").textContent = p.value === null ? "—" : p.value.toFixed(2);
   const prev = trailingMean(series, i);
   const delta = $("#heroDelta");
-  if (p.value === null) delta.textContent = "No data for this day";
+  if (p.value === null) delta.textContent = NO_SCORE_MESSAGE;
   else if (prev === null) delta.textContent = "No earlier days yet";
   else {
     const d = p.value - prev;
@@ -239,6 +239,7 @@ async function renderShift() {
   const say = (msg) => { legend.hidden = true; sub.hidden = !isHappy(); setEmpty(host, msg); };
   if (!state.date) { say("No data yet."); return; }
   if (!isHappy()) { say(shiftMessage("entropy")); return; }
+  if (series[selIndex()]?.value === null) { say(shiftMessage("happiness", undefined, false)); return; }
   if (!shift) { say("Loading…"); return; }
   if (shift.status !== 200 || !shift.spec) {
     say(shiftMessage("happiness", shift.status) || "The word shift could not be loaded.");
@@ -331,7 +332,8 @@ document.querySelectorAll(".theme button").forEach((b) => b.addEventListener("cl
   store.set("theme", state.theme);
   applyTheme();
 }));
-mq.addEventListener("change", applyTheme);
+if (typeof mq.addEventListener === "function") mq.addEventListener("change", applyTheme);
+else mq.addListener(applyTheme);  // old Safari
 applyTheme();
 
 async function init() {

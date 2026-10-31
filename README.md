@@ -50,7 +50,7 @@ Days without a value are left out of the CSV, and are gaps in the charts.
 
 ## Licences
 
-- **Code** (the page: `index.html`, `assets/`): MIT.
+- **Code** (the page: `index.html`, `assets/`): MIT, see [LICENSE](LICENSE).
 - **Data** (`data/`): [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/),
   following the LabMT lexicon's licence.
 
