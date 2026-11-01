@@ -6,7 +6,7 @@ Daily measures of the language of Bluesky, computed from every public post:
   score of the words in each day's posts, ignoring neutral words (scores 4–6), on a 1–9 scale.
   Each day also has a word shift showing which words moved happiness against up to 7 previous days.
 - **Entropy rate** (the entropometer): how predictable the language is, in bits per word, estimated
-  with [ProcessEntropy](https://pypi.org/project/ProcessEntropy/) on a fixed 1M-word random sample per day.
+  with [ProcessEntropy](https://pypi.org/project/ProcessEntropy/) on fixed-size random samples: 4M words per day for English and all posts, 1M for other languages, and 400k per hour.
 
 Both are published per language, with hourly values (UTC) for every day.
 
